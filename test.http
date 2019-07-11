@@ -1,0 +1,55 @@
+
+
+@URL = http://localhost:3001
+@json = Content-Type: application/json
+
+### 测试 普通用户
+get {{URL}}/api/user
+
+### 注册用户
+post {{URL}}/api/user/register
+{{json}}
+
+{
+    "email":"qq@qq.com",
+    "username":"user1",
+    "password":"123456",
+    "phone":"18529092771"
+}
+
+### 登录
+post {{URL}}/api/user/login
+{{json}}
+
+{
+    "email":"wsm_1105@163.com",
+    "password":"123456"
+}
+
+
+
+### 测试 管理员
+get {{URL}}/api/admin
+
+### 管理员注册
+post {{URL}}/api/admin/register
+{{json}}
+
+{
+    "email":"admin@163.com",
+    "password":"AxYgfi.?1105",
+    "username":"管理员1"
+}
+
+### 管理员登录
+post {{URL}}/api/admin/login
+{{json}}
+
+{
+    "email":"admin@163.com",
+    "password":"AxYgfi.?1105"
+}
+
+### 获取所有用户
+get {{URL}}/api/admin/allmessage
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkMGI2ZjgzYjc0NzEwMzJlY2U1NDc2NyIsImVtYWlsIjoiYWRtaW5AMTYzLmNvbSIsInVzZXJuYW1lIjoi566h55CG5ZGYMSIsImRhdGUiOiIyMDE5LzA2LzIwIDE5OjM1OjMxIiwiaWF0IjoxNTYxMDQzOTIzLCJleHAiOjE1NjEwNDc1MjN9.rWTC0BB8zMNE8uHl9Cyw9nlRvO2lwt5LSNa-4eXXdLM
