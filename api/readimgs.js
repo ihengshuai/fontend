@@ -14,6 +14,8 @@
     readImg(url);
  })
 
+
+
  function readImg(path,res){
     fs.readFile(path, 'binary', (err, file) =>{
         if(err){

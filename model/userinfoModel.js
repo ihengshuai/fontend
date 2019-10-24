@@ -25,7 +25,7 @@
      },
      avatar:{   // 头像
         type:String,
-        default:""
+        default:"default.png"
      },
      signdate:{  // 签到时间
          type:String,

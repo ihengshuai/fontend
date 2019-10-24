@@ -1,17 +1,14 @@
 /*
  * @Author: Mr_Wei
- * @Description: HTML5文章模型
- * @Date: 16:58 2019/07/09
- * @Param: html5Model.js
+ * @Description: CSS文章模型
+ * @Date: 11:07 2019/07/25
+ * @Param: cssModel.js
  * @return:
  **/
-
-//  文章每部分由 title, content, hash = title
-
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const html5model = new Schema({
+const cssmodel = new Schema({
     coursetype:{
         required:true,
         type:String
@@ -26,5 +23,5 @@ const html5model = new Schema({
     }
 })
 
-const HTML5Model = mongoose.model("HTML5Model", html5model);
-module.exports = HTML5Model
+const CSSModel = mongoose.model("CSSModel", cssmodel);
+module.exports = CSSModel

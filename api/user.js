@@ -8,10 +8,16 @@
 
 const $ = require("jquery");   // 本页面没用到
 const router = require("express").Router();  
+const copydir = require('node-copydir')
 const passport = require("passport");
+const svgCaptcha = require('svg-captcha');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const fs = require("fs");
+const path = require("path");
 const key = require("../config/keys").KEYORSECRET;
+const uploadImg = require("../config/uploadImg");
+const delNoUse = require("../config/delNoUseImg");
 require("../config/Date");
 
 // 模型
@@ -22,6 +28,9 @@ const UserLogin_Log = require("../model/userlogin_log");  // 用户登录日志
 const UserRegister_Log = require("../model/userregister_log");  // 用户注册日志
 const UserSign_Log = require("../model/usersign_log");  // 用户签到日志
 const UserBuy_Log = require("../model/userbuy_log");  // 用户购买课程日志
+const HTMLMessageModel = require("../model/viphtmlMessage");
+const CSSMessageModel = require("../model/vipcssMessage");
+const JSMessageModel = require("../model/vipjsMessage");
 
 // 测试
 router.get("/", (req, res) => {
@@ -30,7 +39,12 @@ router.get("/", (req, res) => {
 
 // 上传头像
 router.post("/upload", (req, res) => {
-    res.send("user OK");
+    const email = req.query.email;
+    UserInfo.findOne({email})
+        .then(user => {
+            uploadImg(req, res, 2, user._id);
+            // res.send("OK");
+        })
 })
 
 
@@ -79,6 +93,7 @@ router.post("/register", (req, res) => {
                     setTimeout(() => {
                         UserInfo.findOne({email})
                                 .then(userid => {
+                                    fs.mkdirSync(path.resolve(__dirname, "../static/user/" + userid._id))
                                     // 用户注册日志
                                     const newRegister_Log = new UserRegister_Log({
                                         email,
@@ -87,8 +102,14 @@ router.post("/register", (req, res) => {
                                         userID:userid._id
                                     })
                                     newRegister_Log.save();
+                                    try{
+                                        fs.writeFileSync(path.resolve(__dirname, `../static/user/${userid._id}/default.png`), fs.readFileSync(path.resolve(__dirname, `../static/avatar/default.png`)));
+                                        console.log('头像初始化成功');
+                                    }catch(error){
+                                        console.log(error)
+                                    };
                                 })
-                    }, 2000)
+                    }, 1000)
                     
                 }
             })
@@ -142,7 +163,7 @@ router.post("/login", (req, res) => {
                                                     enddate:usercourse.enddate,
                                                     buycount:usercourse.buycount
                                                 };
-                                                jwt.sign(rule,key,{expiresIn:100000},(err, token) => {
+                                                jwt.sign(rule,key,{expiresIn:7200},(err, token) => {
                                                     if(err) throw err;
                                                     res.json({"token" : "Bearer " + token})
                                                 })
@@ -198,6 +219,7 @@ router.post("/updata/token", passport.authenticate("jwt", {session:false}), (req
                                         email,
                                         username:userinfo.username,
                                         courseType:"HTML5系列",
+                                        totalMoney:req.body.totalMoney,
                                         buyTime:new Date().format("yyyy/MM/dd HH:mm:ss")
                                     })
                                     newBuy_Log.save();
@@ -211,6 +233,7 @@ router.post("/updata/token", passport.authenticate("jwt", {session:false}), (req
                                         email,
                                         username:userinfo.username,
                                         courseType:"CSS系列",
+                                        totalMoney:req.body.totalMoney,
                                         buyTime:new Date().format("yyyy/MM/dd HH:mm:ss")
                                     })
                                     newBuy_Log.save();
@@ -224,6 +247,7 @@ router.post("/updata/token", passport.authenticate("jwt", {session:false}), (req
                                         email,
                                         username:userinfo.username,
                                         courseType:"JavaScript系列",
+                                        totalMoney:req.body.totalMoney,
                                         buyTime:new Date().format("yyyy/MM/dd HH:mm:ss")
                                     })
                                     newBuy_Log.save();
@@ -235,9 +259,10 @@ router.post("/updata/token", passport.authenticate("jwt", {session:false}), (req
                                 // 购买次数
                                 if(req.body.buycount){rule.buycount = req.body.buycount}else{rule.buycount = usercourse.buycount} 
                                 
-                                jwt.sign(rule,key,{expiresIn:600},(err, token) => {
+                                jwt.sign(rule,key,{expiresIn:7200},(err, token) => {
                                     if(err) throw err;
                                     res.json({"token" : "Bearer " + token})
+                                   
                                 });
 
 
@@ -269,7 +294,9 @@ router.post("/updata/token", passport.authenticate("jwt", {session:false}), (req
                                     {$set:curuserinfo},
                                     {new:true}
                                 ).then(curuserinfo => {
-                                    curuserinfo.save();
+                                    curuserinfo.save().then(() => {
+                                        delNoUse(2, rule.id);
+                                    })
                                 }).catch(err => console.log("更新失败"))
 
                                 // 用户购买课程信息
@@ -287,6 +314,25 @@ router.post("/updata/token", passport.authenticate("jwt", {session:false}), (req
                                 ).then(curcourse => {
                                     curcourse.save();
                                 }).catch(err => console.log("更新失败"))
+
+                                // 用户留言头像更换
+                                const curmessage = {};
+                                curmessage.avatar = rule.avatar;
+                                HTMLMessageModel.updateMany(
+                                    {username:rule.username},
+                                    {$set:curmessage},
+                                    {new:true},
+                                ).catch(err => console.log(err))
+                                CSSMessageModel.updateMany(
+                                    {username:rule.username},
+                                    {$set:curmessage},
+                                    {new:true},
+                                ).catch(err => console.log(err))
+                                JSMessageModel.updateMany(
+                                    {username:rule.username},
+                                    {$set:curmessage},
+                                    {new:true},
+                                ).catch(err => console.log(err))
                             })
                     })
             })
@@ -318,11 +364,55 @@ router.post("/modpwd", passport.authenticate("jwt", {session:false}), (req, res)
                 })
 });
 
-// 登录时 记录登录时间
-// 签到时 记录签到记录
-// 购买课程时 记录购买记录
+// 获取验证码
+router.get("/getCaptcha", (req, res) => {
+    var captcha = svgCaptcha.create({  
+        // 翻转颜色  
+        inverse: false,  
+        // 字体大小  
+        fontSize: 38,  
+        // 噪声线条数  
+        noise: 3,  
+        // 宽度  
+        width: 80,  
+        // 高度  
+        height: 32,  
+      });  
+      // 保存到session,忽略大小写  
+      req.session = captcha.text.toLowerCase(); 
+      console.log(req.session); //0xtg 生成的验证码
+      //保存到cookie 方便前端调用验证
+      res.cookie('captcha', req.session); 
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.send(String(captcha.data));
+      res.end();
+})
 
+// 获取头像
+router.get("/avatar", (req, res) => {
+    const email = req.query.email;
+    UserInfo.findOne({email})
+        .then(user => {
+            if(user){
+                res.sendFile(path.resolve(__dirname, `../static/user/${user._id}/${user.avatar}`))
+            }else{
+                res.sendFile(path.resolve(__dirname, `../static/avatar/logo-avatar.png`))
+            }
+        })
+})
 
+// 回显头像
+router.get("/avatar/back", (req, res) => {
+    const email = req.query.email;
+    const avatar = req.query.avatar;
+    
+    UserInfo.findOne({email})
+        .then(user => {
+            if(user){
+                res.sendFile(path.resolve(__dirname, `../static/user/${user._id}/${avatar}`))
+            }
+        })
+})
 
 // 导出组件
 module.exports = router;

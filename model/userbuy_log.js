@@ -22,6 +22,10 @@
          required:true,
          type:String
      },
+     totalMoney:{
+        required:true,
+        type:String
+     },
      buyTime:{
          required:true,
          type:String

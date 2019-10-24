@@ -1,6 +1,6 @@
 /*
  * @Author: Mr_Wei
- * @Description: 配置留言模型
+ * @Description: 配置留言墙模型
  * @Date: 17:21 2019/6/22
  * @Param: messageModel.js
  * @return:
@@ -12,10 +12,6 @@ const Schema = mongoose.Schema;
 *       留言内容由：email,username,content(内容),date组成
 */
 const messageModel = new Schema({
-    email:{
-        required:true,
-        type:String
-    },
     username:{
         required:true,
         type:String
@@ -24,13 +20,26 @@ const messageModel = new Schema({
         required:true,
         type:String
     },
+    avatar:{
+        required:true,
+        type:String
+    },
     date:{
         required:true,
-        type,String
+        type:String
+    },
+    email:{
+        type:String
+    },
+    qq:{
+        type:String
+    },
+    city:{
+        type:String
     }
 });
 
 const Message = mongoose.model("Message", messageModel);
 
 // 导出模型
-module.exports = { Message };
+module.exports = Message;

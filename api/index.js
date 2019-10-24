@@ -8,6 +8,8 @@
 
 const router = require("express").Router();
 const Index = require("../model/indexModel");
+const fs = require("fs");
+const path = require("path");
 
 router.post("/a", (req, res) => {
     const url = req.body.url;
@@ -26,6 +28,21 @@ router.get("/", (req, res) => {
             .then(data => {
                 res.send(data);
             })
+})
+
+// 搜索卡片
+router.post("/search", (req, res) => {
+    const cardName = req.body.cardName.trim() + ".*";
+    Index.find({title : {$regex: cardName, $options : "i"}})
+        .then(cards => {
+            res.send(cards);
+        })
+})
+
+
+// 获取card图片资源
+router.get("/img", async(req ,res) => {
+    res.sendFile(path.resolve(__dirname, "../static/cards/" + req.query.name))
 })
 
 module.exports = router;
