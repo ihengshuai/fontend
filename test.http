@@ -3,42 +3,19 @@
 @URL = http://localhost:3001
 @json = Content-Type: application/json
 
-### 测试 普通用户
-get {{URL}}/api/user
-
-### 注册用户
-post {{URL}}/api/user/register
-{{json}}
-
-{
-    "email":"qq@qq.com",
-    "username":"user1",
-    "password":"123456",
-    "phone":"18529092771"
-}
-
-### 登录
-post {{URL}}/api/user/login
-{{json}}
-
-{
-    "email":"wsm_1105@163.com",
-    "password":"123456"
-}
-
 
 
 ### 测试 管理员
 get {{URL}}/api/admin
 
-### 管理员注册
+### 管理员注册     管理员注册接口在admin.js 第一个路由
 post {{URL}}/api/admin/register
 {{json}}
 
 {
-    "email":"admin@163.com",
-    "password":"AxYgfi.?1105",
-    "username":"管理员1"
+    "email":"  请填写邮箱  ",
+    "password":"  请填写密码  ",
+    "username":" 请设置名字  "
 }
 
 ### 管理员登录
@@ -46,8 +23,8 @@ post {{URL}}/api/admin/login
 {{json}}
 
 {
-    "email":"admin@163.com",
-    "password":"AxYgfi.?1105"
+    "email":"  你的邮箱  ",
+    "password":"   你的密码   "
 }
 
 ### 获取所有用户
