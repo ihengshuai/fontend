@@ -41,16 +41,16 @@ router.get("/all", (req, res) => {
     MessageWall.find()
         .then(msgs => {
             if(msgs.length){
-                var arrNum = [];
-                var resultNote = [];
-                for(var i = 0; i < msgs.length; i++){
-                    var randomNumber = Math.floor(Math.random() * msgs.length);
-                    if(arrNum.length > 14){
-                        res.send(resultNote);
-                        return;
-                    }else{
-                        if(msgs.length < 16){
-                            res.send(msgs)
+                if(msgs.length < 16){
+                    res.send(msgs);
+                }else{
+                    var arrNum = [];
+                    var resultNote = [];
+                    for(var i = 0; i < msgs.length; i++){
+                        var randomNumber = Math.floor(Math.random() * msgs.length);
+                        if(arrNum.length > 14){
+                            res.send(resultNote);
+                            return;
                         }else{
                             //判断随机数是否在数组里，随机打乱名字顺序
                             if (isInArray(arrNum, randomNumber)) {
@@ -74,11 +74,6 @@ router.get("/all", (req, res) => {
                     }
                 }
                 return flag;
-                // var index = $.inArray(value,arr);
-                // if(index >= 0){
-                //     return true;
-                // }
-                // return false;
             }
             
         })
