@@ -10,7 +10,7 @@
   "author": "Mr_Wei <wsm_1105@163.com>",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
